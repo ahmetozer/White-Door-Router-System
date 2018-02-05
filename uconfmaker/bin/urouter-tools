@@ -1,0 +1,73 @@
+#!/bin/bash
+
+## empty
+if [ -z "$1" ]
+then
+echo "Please write tool name"
+echo "lsdisk service ppptest pppdiscover arp torrentstart torrentstop webliveinterfacestatus wolfor"
+
+## lsdisk
+elif [ "$1" = "lsdisk" ]
+then
+ls -l /dev/disk/by-label | cut -d' ' -f9,11 | sed 's/'\x20'/ /g'
+
+
+## service
+elif [ "$1" = "service" ]
+then
+if [ $(systemctl is-active $2) = active ]; then echo 1
+else
+echo 0
+fi
+
+
+## ppptest
+elif [ "$1" = "ppptest" ]
+then
+source /urouter/urouter.uconf
+ppp=`ifconfig $internetinterfaceconf | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'`
+ping -q -w 1 -c 1 ${ppp} > /dev/null && echo 1 || echo 0
+
+## pppdiscover
+elif [ "$1" = "pppdiscover" ]
+then
+pppoe-discovery
+
+## arp
+elif [ "$1" = "arp" ]
+then
+source /urouter/urouter.uconf
+arp -i $cableinterfaceuconf 
+
+## delugeallstart from web
+elif [ "$1" = "torrentstart" ]
+then
+#deluged 2>1 >/dev/null &
+#deluge-web -p 1454 --base /deluge/ 2>1 >/dev/null &
+ip netns exec urouter-virtual-nat transmission-daemon --config-dir /urouter/uconfmaker/etc/transmission/ -f > /dev/null &
+## delugestop from web
+
+elif [ "$1" = "torrentstop" ]
+then
+#killall -9 deluged > /dev/null &
+#killall -9 deluge-web > /dev/null &
+killall -9 transmission-daemon
+
+###webliveinterfacestatus
+elif [ "$1" = "webliveinterfacestatus" ]
+then
+source /urouter/urouter.uconf
+#netstat -i | cut -d ' ' -f1 | tail -n +3 |  while IFS= read -r line ;do
+echo '<iframe src=''"/bandwith/index.php?interface='"$internetinterfaceconf"'"' 'class="interfacesliveupdate2" style="overflow-y: hidden;" scrolling="no"></iframe>' 
+#done
+elif [ "$1" = "wolfor" ]
+then
+socat -u -T1 UDP-LISTEN:9567,fork UDP-DATAGRAM:10.0.0.255:9,broadcast
+
+elif [ "$1" = "cpuusage" ]
+then
+CORECOUNT=$(grep -c ^processor /proc/cpuinfo)
+top -bn 1 | awk -v n=$CORECOUNT 'NR > 7 { s += $9 } END { print int(s / n + .5); }'
+
+####last fi
+fi

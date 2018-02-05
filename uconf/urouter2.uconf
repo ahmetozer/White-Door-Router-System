@@ -1,0 +1,158 @@
+#!/bin/bash
+###
+#System config
+###
+project_name='Ultimate Router Project By Ahmet OZER'
+pversiyonuconf='2.3'
+pnameuconf=`echo Urouter $pversiyonuconf`
+urouter_dir="/urouter" #config location WR
+uroutertmp="$urouter_dir/uroutertmp" 
+binlocuconf="$urouter_dir/uconfmaker/bin"
+etclocuconf="$urouter_dir/uconfmaker/etc"
+uetc="$uroutertmp/etc"
+ubin="$uroutertmp/bin"
+ulang="$urouter_dir/uconf/ulang.urouter"
+inernetinterfaceconf='burayı duzelltttt # # # # #'
+
+tcpdumploglocuconf='/web/Dosya/16/telekom-log/'
+sshportuconf='22895'
+hostnameuconf=`hostname`
+locationuconf='Marmaris'
+cputempuconf=`awk '{printf ("%0.1f",$1/1000); }' </sys/devices/virtual/thermal/thermal_zone0/temp`
+###
+#weather
+###
+wttrenableduconf='1'
+wttruconf='wttr.in/marmaris?lang=tr' #weather
+###
+#System Checker
+###
+syscheckpingenableduconf='1'
+syscheckwebsitesenableduconf='1'
+bashwebouttmplocuconf="$uroutertmp/urouter-system-control/web/"
+systemcontrolweboutuconf='kontrol-server2.html'
+topweboutuconf='top-server2.html'
+bashweboutlocuconf='/web/ahmetozer-org'
+systemcontrolloc='/urouter/uconf/systemcontrol'
+####
+#Network Settings
+###
+systemdnsoneuconf='127.0.0.1' #default dns server WR
+systemdnstwouconf='8.8.4.4' #default dns server WR
+cableinterfaceuconf='eth0' #cable connection interface WR
+internetinterfaceconf='ppp0' #internet connection interface WR
+###
+#PPP config
+###
+#pppoe connection mru mru mrru config WR
+pppmtuuconf='1492'
+pppmruuconf='1492'
+pppmrruuconf='1500'
+
+#pppoe username password config WR
+pppuseruconf='ahmetozer48adsl@turk.net'
+ppppassworduconf='78a93ad4f7'
+
+
+###
+#Dhcpd config
+###
+#ipv4 WR
+subnet4uconf='10.0.0.0'
+netmask4uconf='255.255.255.0'
+dhcprangeone4uconf='10.0.0.10'
+dhcprangetwo4uconf='10.0.0.250'
+dhcpbroadcast4uconf='10.0.0.255'
+routers4uconf='10.0.0.5'
+leasetime4uconf='7200'
+domainname4uconf='marmaris.ahmetozer.org'
+dhcpdnsone4uconf='10.0.0.5'
+dhcpdnstwo4uconf='8.8.8.8'
+dhcpinterface4uconf=`echo $cableinterfaceuconf`
+staticip4uconf='/urouter/uconf/staticip4.urouter'
+
+staticip4enableduconf='1'
+
+#ipv6 WR
+domainname6uconf=`echo '"'$domainname4uconf'"'`
+ipv6adressuconf='2001:470:1f15:525'
+dhcpdnsone6uconf=`echo $ipv6adressuconf'::2'`
+dhcpdnstwo6uconf='2001:4860:4860::8888'
+leasetime6uconf=`echo $leasetime4uconf`
+
+###
+#Bind9 config
+###
+
+bind9listenonipv4uconf='any'
+bind9listenonipv6uconf='any'
+bind9allowqueryuconf='any'
+
+bind9recursionuconf='yes'
+bind9dnssecvalidationuconf='yes'
+bind9dnssecenableuconf='yes'
+bind9authnxdomain='no'
+
+nat64bind9enableduconf='1'  #İpv6 support all domains
+nat64serveripuconf='2001:67c:27e4:11::/96'
+
+alldnsrequestfipv4uconf='1' #all ipv4 dns request forward to system #iptables
+alldnsrequestfipv6uconf='1' #all ipv6 dns request forward to system #iptables
+
+bind9forwardonlyuconf='0'
+
+bind9resolverenableduconf='1'
+bind9resolveruconf='2620:0:ccc::2,2a02:6b8::feed:0ff,2001:1608:10:25::1c04:b12f,8.8.8.8,8.8.4.4'
+
+
+
+###
+#Cloudflare DNS
+###
+cloudflareddnsenableduconf='1'
+cloudflaretokenuconf='tkn=a451bc53228cfe86012a01211242bcf77ab6b'
+cloudflareemailuconf='ultimatedev@outlook.com'
+cloudflaredomainuconf='ahmetozer.org'
+cloudflareddnsdomainuconf='ppp0.15864.ahmetozer.org'
+cloudflareddnsdomainiduconf='701383552'
+cludflareddnsttluconf='1'
+cloudflareddnsdomaintype='A'
+
+###
+#Duck DNS
+###
+duckdnsenableduconf='1'
+duckdnsulruconf='https://www.duckdns.org/update?domains=dijitaller&token=e07f9247-ddea-4e4e-b9a3-2c7b18da9015&ip='
+
+###
+#tunnelbroker.com config
+###
+tunnelbrokerenableduconf='1'
+ipv4tunnelbrokernetuconf='64.62.200.2'
+tunnelbrokertunnelipuconf='216.66.84.46'
+#tunnelbrokertunnelipuconf='216.66.88.98' #london
+tunnelbrokerupdateurluconf='https://ultimatedev:iip4psVdZoskdPiT@ipv4.tunnelbroker.net/nic/update?hostname=340858'
+#tunnelbrokerupdateurluconf='https://ultimatedev:MVDBjN9G56jF0jxW@ipv4.tunnelbroker.net/nic/update?hostname=375739' #london
+tunnelbrokertunneldev='sit0'
+tunnelbrokerinternetdev='sit1'
+tunnelbrokerip1block=`echo $ipv6adressuconf`
+tunnelbrokerip2block='2001:470:1f14:525'
+
+###
+# Firewall
+###
+firewallconflocuconf="$urouter_dir/uconf"
+
+###   ipv4    ###
+ipv4dropinternetinterfaceuconf='3'  # 0 disable  1 drop tcp , 2 drop UDP , 3 Drop TCP and UDP , 4 Drop all types
+ipv4enablepinginternetinterfaceuconf='1' #ping (icmp) connections from internet
+ipv4enableinternetinterfaceportsuconf='1' # Enable alll ip adress from custom port
+ipv4enableipfrominternetuconf='1'
+ipv4enablenatuconf='1'
+ipv4natinterfacesuconf="$internetinterfaceconf,$cableinterfaceuconf,tap0" 
+
+###   ipv6    ###
+ipv6enableipfrominternetuconf='1'
+
+### allow DNS server ? ###
+firewallallowdnsserveripuconf='1'

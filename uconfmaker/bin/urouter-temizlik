@@ -1,0 +1,4 @@
+#!/bin/bash
+service bind9 restart
+echo 3 > /proc/sys/vm/drop_caches
+ip -s -s neigh flush all

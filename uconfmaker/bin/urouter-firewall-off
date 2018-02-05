@@ -1,0 +1,30 @@
+#!/bin/bash
+urouter_dir="/urouter"
+
+source $urouter_dir/urouter.uconf
+dos2unix /urouter/uconf/* 2> /dev/null
+
+iptables --flush
+iptables --table nat --flush
+iptables --delete-chain
+iptables --table nat --delete-chain
+
+if [ "$ipv4enablenatuconf" = 1 ];
+then
+
+echo $ipv4natinterfacesuconf | sed '/[0-9]\,/s/\,/\n/g' | while IFS= read -r line; do   iptables --table nat --append POSTROUTING --out-interface $line -j MASQUERADE; done
+echo $ipv4natinterfacesuconf | sed '/[0-9]\,/s/\,/\n/g' | while IFS= read -r line; do   iptables --append FORWARD --in-interface $line -j ACCEPT; done
+
+fi
+sysctl -w net.ipv4.ip_forward=$ipv4enablenatuconf
+
+ip6tables --flush > /dev/null
+ip6tables --table nat --flush > /dev/null
+ip6tables --delete-chain > /dev/null
+ip6tables --table nat --delete-chain > /dev/null
+
+
+
+
+
+echo Güvenlik duvarı pasif | espeak -v tr -g 13

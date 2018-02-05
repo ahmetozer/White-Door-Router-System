@@ -1,0 +1,12 @@
+###
+#PPP config
+###
+#pppoe connection mru mru mrru config WR
+pppmtuuconf='1492'
+pppmruuconf='1492'
+pppmrruuconf='1492'
+
+#pppoe username password config WR
+pppuseruconf='test'
+ppppassworduconf='test'
+pppholdtime='101'

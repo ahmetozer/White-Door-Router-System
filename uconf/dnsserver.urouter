@@ -1,0 +1,18 @@
+###
+#Bind9 config
+###
+bind9listenonipv4uconf='any' #Bind9 dinleme
+bind9listenonipv6uconf='any'
+bind9allowqueryuconf='any'
+bind9recursionuconf='yes'
+bind9dnssecvalidationuconf='yes'
+bind9dnssecenableuconf='yes'
+bind9authnxdomain='yes'
+nat64bind9enableduconf='0'  #İpv6 support all domains
+nat64serveripuconf='2001:67c:27e4:11::/96'
+#nat64serveripuconf='2001:470:783a:ffff::/96'
+alldnsrequestfipv4uconf='0' #all ipv4 dns request forward to system #iptables
+alldnsrequestfipv6uconf='0' #all ipv6 dns request forward to system #iptables
+bind9forwardonlyuconf='1'
+bind9resolverenableduconf='1'
+bind9resolveruconf='2001:470:20::2,2001:4860:4860::8888,2a02:6b8::feed:0ff,2001:1608:10:25::1c04:b12f'

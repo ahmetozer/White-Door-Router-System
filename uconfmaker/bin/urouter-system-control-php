@@ -1,0 +1,75 @@
+#!/bin/bash
+urouter_dir="/urouter"
+source $urouter_dir/urouter.uconf
+
+mkdir -p $uroutertmp/urouter-system-control/web/
+######
+#renkler
+######
+Red='\033[0;31m'
+NC='\033[0m' # No Color
+Blue='\033[0;34m'
+Black='\033[0;30m'
+Green='\033[0;32m'
+Orange='\033[0;33m'
+Cyan='\033[0;36m'
+Purple='\033[0;35m'
+LRed='\033[1;31m'
+Yellow='\033[1;33m'
+LBlue='\033[1;34m'
+LGreen='\033[1;32m'
+LCyan='\033[1;36m'
+#####
+#çalışma alanı
+##
+
+###websiteleri
+WEBSITESFILE=$systemcontrolloc/websites.txt
+###servisler
+SERVICEFILE=$systemcontrolloc/services.txt
+
+
+
+###
+#döngü başlangıcı
+###
+#for (( ; ; ))
+#do
+###
+#ağ testi
+###
+
+
+printf "${LRed}$pnameuconf ${LGreen} $ZmU3YTNh ${LBlue} $hostnameuconf ${NC} $locationuconf # CPU $cputempuconf°\n"
+#echo
+ppp=`ifconfig $internetinterfaceconf | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'` ${ppp}
+pppusa=`ifconfig $internetinterfaceconf | grep 'RX bytes:'`
+ppp='10.0.0.5'
+
+source $ulang
+
+#inactive
+#failed
+#active
+###################################################
+popip=`$binlocuconf/urouter-info-ip`
+popnetname=`whois $popip | grep 'netname:' | cut -d: -f2 | awk '{ print $1}' `
+
+popnetasn=`whois $popip | grep 'origin' | cut -d: -f2 | awk '{ print $1}' `
+
+
+#ping -q -w 1 -c 1 ${ppp} > /dev/null && printf "${LBlue}${popnetname} ${NC}şuanda ${LGreen}Bağlı ${NC}  ${Orange} \n" 
+ping -q -w 1 -c 1 ${ppp} > /dev/null && printf "$MDhkODc" || echo `
+printf "$MjE4ODZk"
+`
+
+echo $pppusa
+
+cat $uroutertmp/urouter-system-control/server2
+
+echo "$OTE2MTdi = $( date "+%d %B %A %Y Saat %H:%M:%S |%d-%m-%Y|")"
+chmod 755 $bashwebouttmplocuconf/$systemcontrolweboutuconf &>> /dev/null
+#sleep 60
+#clear
+#done
+###################################################

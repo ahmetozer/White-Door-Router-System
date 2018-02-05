@@ -1,0 +1,10 @@
+#!/bin/bash
+urouter_dir="/urouter"
+source $urouter_dir/urouter.uconf
+
+if [ "$duckdnsenableduconf" = 1 ];
+then
+internetipv4=`bash /urouter/uroutertmp/bin/urouter-info-ip`
+/usr/bin/curl -k "$duckdnsulruconf$internetipv4"  &> /dev/null
+
+fi

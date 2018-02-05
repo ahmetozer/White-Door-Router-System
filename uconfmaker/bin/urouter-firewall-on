@@ -1,0 +1,318 @@
+#!/bin/bash
+urouter_dir="/urouter"
+
+source $urouter_dir/urouter.uconf
+
+dos2unix /urouter/uconf/* 2> /dev/null
+###################################
+#    ipv4 ayarları
+###################################
+
+
+iptables --flush > /dev/null
+iptables --table nat --flush > /dev/null
+iptables --delete-chain > /dev/null
+iptables --table nat --delete-chain > /dev/null
+iptables -t mangle -F > /dev/null
+iptables -t mangle -X > /dev/null
+iptables -t raw -F > /dev/null
+iptables -t raw -X > /dev/null
+
+iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+#######
+# İnternet interface enable icmp
+#######
+
+if [ "$ipv4enablepinginternetinterfaceuconf" = 'on' ];
+then
+echo > /dev/null
+else
+iptables -A INPUT -i $internetinterfaceconf -p icmp -j DROP
+fi
+
+#######
+# İnternet interface enable ports
+#######
+if [ "$ipv4enableinternetinterfaceportsuconf" = 'on' ];
+then
+function firewall4allowport {
+firewall4allowporttype=`echo $p | grep  -v "^#\|^'\|^\/\/" | cut -d'"' -f2`
+firewall4allowportnumber=`echo $p | grep  -v "^#\|^'\|^\/\/" | cut -d'"' -f4`
+firewall4allowip=`echo $p | grep  -v "^#\|^'\|^\/\/" | cut -d'"' -f6`
+if [ `echo $p | cut -c1` = "#" ];
+then
+echo > /dev/null
+else
+if [ -z "$firewall4allowip" ] 
+then 
+iptables -A INPUT -i $internetinterfaceconf -p $firewall4allowporttype -m $firewall4allowporttype --dport $firewall4allowportnumber -j ACCEPT
+else 
+echo $firewall4allowip | sed '/[0-9]\,/s/\,/\n/g' | while IFS= read -r line
+do iptables -A INPUT -i $internetinterfaceconf -s $line -p $firewall4allowporttype -m $firewall4allowporttype --dport $firewall4allowportnumber -j ACCEPT
+done 
+fi
+fi
+}
+# main loop
+while read p; do
+  firewall4allowport $p
+done < $firewallconflocuconf/firewall-4-allow-port.urouter
+fi
+###################################
+#    Allow ip sources
+###################################
+
+
+
+if [ "$ipv4enableipfrominternetuconf" = 'on' ];
+then
+
+function firewall4allowip {
+if [ `echo $p | cut -c1` = "#" ];
+then
+echo > /dev/null
+else
+
+iptables -I INPUT -i $internetinterfaceconf -s $p -j ACCEPT
+
+fi
+
+
+
+  
+}
+
+
+# main loop
+while read p; do
+  firewall4allowip $p
+done < $firewallconflocuconf/firewall-4-allow-ip.urouter
+
+fi
+
+
+
+###################################
+#    Allow NAT
+###################################
+
+
+
+if [ "$ipv4enablenatuconf" = 'on' ];
+then
+
+echo $ipv4natinterfacesuconf | sed '/[0-9]\,/s/\,/\n/g' | while IFS= read -r line; do   iptables --table nat --append POSTROUTING --out-interface $line -j MASQUERADE; done
+echo $ipv4natinterfacesuconf | sed '/[0-9]\,/s/\,/\n/g' | while IFS= read -r line; do   iptables --append FORWARD --in-interface $line -j ACCEPT; done
+sysctl -w net.ipv4.ip_forward=1 > /dev/null
+else
+sysctl -w net.ipv4.ip_forward=0 > /dev/null
+fi
+
+#######
+# İnternet interface Drop settings
+#######
+if [ "$ipv4dropinternetinterfaceuconf" = 1 ];
+then
+
+iptables -A INPUT -i $internetinterfaceconf -p tcp -j DROP
+ip6tables -A INPUT -i $internetinterfaceconf -p tcp -j DROP
+
+
+elif [ "$ipv4dropinternetinterfaceuconf" = 2 ];
+then
+iptables -A INPUT -i $internetinterfaceconf -p udp -j DROP
+ip6tables -A INPUT -i $internetinterfaceconf -p udp -j DROP
+
+elif [ "$ipv4dropinternetinterfaceuconf" = 3 ];
+then
+iptables -A INPUT -i $internetinterfaceconf -p tcp -j DROP
+iptables -A INPUT -i $internetinterfaceconf -p udp -j DROP
+
+ip6tables -A INPUT -i $internetinterfaceconf -p tcp -j DROP
+ip6tables -A INPUT -i $internetinterfaceconf -p udp -j DROP
+
+elif [ "$ipv4dropinternetinterfaceuconf" = 4 ];
+then
+iptables -A INPUT -i $internetinterfaceconf -j DROP
+ip6tables -A INPUT -i $internetinterfaceconf -p tcp -j DROP
+ip6tables -A INPUT -i $internetinterfaceconf -p udp -j DROP
+
+fi
+
+####################################
+#     Port Yönlendirme
+####################################
+if [ "$ipv4portforwarduconf" = 'on' ];
+then
+
+function firewall4forwardport {
+firewall4forwardporttype=`echo $p | grep  -v "^#\|^'\|^\/\/" | cut -d'"' -f2`
+firewall4forwardportnumber=`echo $p | grep  -v "^#\|^'\|^\/\/" | cut -d'"' -f4`
+firewall4forwardip=`echo $p | grep  -v "^#\|^'\|^\/\/" | cut -d'"' -f6`
+if [ `echo $p | cut -c1` = "#" ];
+then
+echo > /dev/null
+else
+
+iptables -t nat -A PREROUTING -p $firewall4forwardporttype  --dport $firewall4forwardportnumber -j DNAT --to-destination $firewall4forwardip
+
+fi
+}
+
+# main loop
+while read p; do
+  firewall4forwardport $p
+done < $firewallconflocuconf/firewall-4-port-forward.urouter
+
+
+fi
+
+
+###################################
+#    Firewall ip block
+###################################
+
+if [ "$ipv4blocklistuconf" = 'on' ];
+then
+
+function firewallipv4blocklist {
+
+if [ `echo $p | cut -c1` = "#" ];
+then
+echo > /dev/null
+else
+
+iptables -A INPUT -s $p -j DROP
+#echo iptables -A INPUT -s $p -j DROP
+fi
+  
+}
+
+
+# main loop
+while read p; do
+  firewallipv4blocklist $p
+done < $firewallconflocuconf/firewall-4-block-ip.urouter
+
+fi
+
+
+
+
+
+
+###################################
+#    ipv6 ayarları
+###################################
+
+
+
+ip6tables --flush > /dev/null
+ip6tables --table nat --flush > /dev/null
+ip6tables --delete-chain > /dev/null
+ip6tables --table nat --delete-chain > /dev/null
+ip6tables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+#sysctl -w net.ipv6.conf.all.forwarding=1
+#ip6tables -t nat -A POSTROUTING -j MASQUERADE
+
+#ip6tables -A INPUT -i sit1 -p tcp -j DROP
+#ip6tables -A INPUT -i sit1 -p udp -j DROP
+
+#ip6tables -A INPUT -i sit0 -p tcp -j DROP
+#ip6tables -A INPUT -i sit0 -p udp -j DROP
+###################################
+#     Root DNS SERVERS
+###################################
+
+if [ "$ipv6enableipfrominternetuconf" = 'on' ];
+then
+
+function firewall6allowip {
+
+if [ `echo $p | cut -c1` = "#" ];
+then
+echo > /dev/null
+else
+
+ip6tables -I INPUT -s $p -j ACCEPT
+
+fi
+  
+}
+
+
+# main loop
+while read p; do
+  firewall6allowip $p
+done < $firewallconflocuconf/firewall-6-allow-ip.urouter
+
+fi
+
+
+###################################
+#DNS FORWARD
+###################################
+if [ "$alldnsrequestfipv4uconf" = 1 ];
+then
+
+iptables -t nat -A PREROUTING -i $cableinterfaceuconf -p tcp -m tcp --dport 53 -j DNAT --to-destination $routers4uconf:53
+iptables -t nat -A PREROUTING -i $cableinterfaceuconf -p udp -m udp --dport 53 -j DNAT --to-destination $routers4uconf:53
+fi
+if [ "$alldnsrequestfipv6uconf" = 1 ];
+then
+ip6tables -t nat -A PREROUTING -i $cableinterfaceuconf -p tcp -m tcp --dport 53 -j DNAT --to-destination [$dhcpdnsone6uconf]:53
+ip6tables -t nat -A PREROUTING -i $cableinterfaceuconf -p udp -m udp --dport 53 -j DNAT --to-destination [$dhcpdnsone6uconf]:53
+fi
+
+
+###################################
+#Accept dns server ip's 
+###################################
+if [ "$firewallallowdnsserveripuconf" = 'on' ];
+then
+
+
+echo $bind9resolveruconf | sed '/[0-9]\,/s/\,/\n/g' | while IFS= read -r line
+do
+
+ipnametype=`$ubin/urouter-info-ipversion $line`
+
+
+if [ "$ipnametype" = IPv4 ];
+then
+iptables -I INPUT -i $internetinterfaceconf -s $line -j ACCEPT
+
+elif [ "$ipnametype" = IPv6 ];
+then
+
+ip6tables -I INPUT -s $line -j ACCEPT
+
+fi
+
+done
+fi
+###################################
+#IPV6 NAT
+###################################
+if [ "$ipv6enablenatuconf" = 'on' ];
+then
+sysctl -w net.ipv6.conf.all.forwarding=1 > /dev/null
+#ip6tables -t nat -A POSTROUTING -j MASQUERADE
+else
+sysctl -w net.ipv6.conf.all.forwarding=0 > /dev/null
+fi
+
+###################################
+#Custom firewall settings
+###################################
+$firewallconflocuconf/firewall-custom-settings.urouter
+
+
+if [ "$firewallespeakuconf" = 1 ];
+then
+source $ulang
+
+echo $Zjg5N2Y1 | $uconfspeak
+fi

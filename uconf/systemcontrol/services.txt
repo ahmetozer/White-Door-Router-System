@@ -1,0 +1,13 @@
+nginx
+php7.0-fpm
+bind9
+isc-dhcp-server
+isc-dhcp-server6
+radvd
+ntp
+smbd
+nmbd
+vnstat
+miredo
+#openvpn@server
+### This is END Line . Don't remove this line.

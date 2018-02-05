@@ -1,0 +1,16 @@
+#ipv4 WR
+subnet4uconf='10.0.0.0'                     ; netmask4uconf='255.255.255.0' 
+dhcprangeone4uconf='10.0.0.10'              ; dhcprangetwo4uconf='10.0.0.250'
+dhcpbroadcast4uconf='10.0.0.255'            ; routers4uconf='10.0.0.5'
+leasetime4uconf='7200'
+domainname4uconf='marmaris.ahmetozer.org'
+dhcpdnsone4uconf='10.0.0.5' ; dhcpdnstwo4uconf='8.8.8.8'
+dhcpinterface4uconf="$cableinterfaceuconf" #Location home
+staticip4uconf='/urouter/uconf/staticip4.urouter'
+staticip4enableduconf='1'
+#ipv6 WR
+domainname6uconf="$domainname4uconf"
+ipv6adressuconf="2001:470:1f1c:623" # Tunnelbroker
+dhcpdnsone6uconf=($ipv6adressuconf'::2')
+dhcpdnstwo6uconf='2001:4860:4860::8888'
+leasetime6uconf="$leasetime4uconf"

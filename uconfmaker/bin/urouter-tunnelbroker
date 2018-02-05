@@ -1,0 +1,22 @@
+#!/bin/bash
+urouter_dir="/urouter"
+source $urouter_dir/urouter.uconf
+if [ "$tunnelbrokerenableduconf" = 1 ];
+then
+ifconfig $tunnelbrokertunneldev down > /dev/null
+ip tunnel del $tunnelbrokerinternetdev > /dev/null
+ifconfig $tunnelbrokertunneldev up > /dev/null
+ifconfig $tunnelbrokertunneldev inet6 tunnel ::$tunnelbrokertunnelipuconf > /dev/null
+ifconfig $tunnelbrokerinternetdev up > /dev/null
+ifconfig $tunnelbrokerinternetdev inet6 add $tunnelbrokerip2block::2/64 > /dev/null
+route -A inet6 add ::/0 dev $tunnelbrokerinternetdev > /dev/null
+sleep 0.7
+ifconfig $cableinterfaceuconf inet6 add $tunnelbrokerip1block::1/64 > /dev/null
+ifconfig $cableinterfaceuconf inet6 add $tunnelbrokerip1block::2/64 > /dev/null
+ifconfig $cableinterfaceuconf inet6 add $tunnelbrokerip1block::3/64 > /dev/null
+elif [ "$tunnelbrokerenableduconf" = 0 ];
+then 
+echo tunnelbroker Disabled
+else
+echo Please set 0 or 1 tunnelbrokerenableduconf
+fi

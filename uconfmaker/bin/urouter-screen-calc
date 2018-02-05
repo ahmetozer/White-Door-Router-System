@@ -1,0 +1,75 @@
+#!/bin/bash
+urouter_dir="/urouter"
+source $urouter_dir/urouter.uconf
+source $ulang
+
+mkdir -p $uetc/screen-calc >> /dev/null
+Location=$uetc/screen-calc/tty
+cat $Location >> /dev/null || echo 1 > $Location
+#touch $Location >> /dev/null
+NO=`cat $Location`
+
+
+
+Lastline=`echo 1 > $Location`
+
+
+function jumpto
+{
+    label=$NO
+    cmd=$(sed -n "/$label:/{:a;n;p;ba};" $0 | grep -v ':$')
+    eval "$cmd"
+    exit
+}
+
+
+jumpto $NO
+
+1:
+killall -9 urouter-w-s-loop >> /dev/null
+chvt 1
+expr $NO + 1 > $Location
+exit
+
+2:
+killall -9 urouter-w-s-loop >> /dev/null
+chvt 2
+expr $NO + 1 > $Location
+exit
+
+3:
+killall -9 urouter-w-s-loop >> /dev/null
+chvt 3
+expr $NO + 1 > $Location
+exit
+
+4:
+killall -9 urouter-w-s-loop >> /dev/null
+chvt 4
+expr $NO + 1 > $Location
+exit
+
+5:
+killall -9 urouter-w-s-loop >> /dev/null
+chvt 5
+expr $NO + 1 > $Location
+exit
+
+6:
+killall -9 urouter-w-s-loop >> /dev/null
+chvt 6
+expr $NO + 1 > $Location
+exit
+
+7:
+killall -9 urouter-w-s-loop >> /dev/null
+expr $NO + 1 > $Location
+chvt 7
+exit
+
+8:
+#expr $NO + 1 > $Location
+$binlocuconf/urouter-w-s-loop &
+#chvt 7
+$Lastline
+exit

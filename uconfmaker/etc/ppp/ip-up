@@ -1,0 +1,28 @@
+#!/bin/bash
+
+####
+#Start Urouter Conf
+####
+urouter_dir="/urouter"
+source $urouter_dir/urouter.uconf
+
+mkdir -p $urouter_dir/logs
+echo "Son yapılan kontrol = $( date "+%d %B %A %Y Saat %H:%M:%S |%d-%m-%Y|")" >> $urouter_dir/logs/pppoe-connected.txt
+echo $pppholdtime > /sys/class/net/ppp0/queues/tx-0/byte_queue_limits/hold_time
+ppp=`ifconfig ppp0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'`
+
+source $ulang
+
+echo $OGZkNGN | $uconfspeak
+
+$binlocuconf/urouter-firewall-on
+ip route del default > /dev/null
+ip route add default dev $internetinterfaceconf > /dev/null
+
+$binlocuconf/urouter-tunnelbroker-u > /dev/null
+
+
+sleep 3
+$binlocuconf/urouter-cloudflare-update
+$binlocuconf/urouter-duckdns
+$binlocuconf/urouter-clatup
