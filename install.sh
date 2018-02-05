@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 if [-f /drouter.readme]
 then
   echo 'system already installed'
@@ -14,3 +14,4 @@ else
   cp debian/* /
   #Services restart
   service ssh restart
+fi
