@@ -1,4 +1,5 @@
 <?php
+//runs well on php -S
 ob_end_flush();
 ini_set("output_buffering", "0");
 ob_implicit_flush(true);
@@ -17,7 +18,7 @@ function pingtest()
 <html>
 <body>
   <pre>
-Immediate output: 
+Immediate output:
 <?php
 pingtest();
 ?>
