@@ -13,9 +13,10 @@ $dirname = $path_parts['dirname'];
 $basename = $path_parts['basename'];
 $extension = $path_parts['extension'];
 $filename = $path_parts['filename'];// PHP 5.2.0'dan beri.
+define("WEBP", dirname(__FILE__));
 #echo "$konum";
 
-if ( "$konak" == "10.0.0.5:1453" || "$konak" == "10.0.0.5:809" || "$konak" == "212.154.12.48:61453" || "$konak" == "212.154.12.48" || "$konak" == "router.ahmetozer.org" ) {
+/*if ( "$konak" == "10.0.0.5:1453" || "$konak" == "10.0.0.5:809" || "$konak" == "212.154.12.48:61453" || "$konak" == "212.154.12.48" || "$konak" == "router.ahmetozer.org" ) {
 if ( $extension == "woff2" || $extension == "css" || $extension == "js" || $extension == "min.js") {
 header('Expires: '.gmdate('D, d M Y H:i:s \G\M\T', time() + (60 * 60)));
 
@@ -31,7 +32,7 @@ exit;
 	</div>";
 	exit;
 }
-
+*/
 if ( $konum == "/" ) {
 	include "pages/home.php";
     exit;
