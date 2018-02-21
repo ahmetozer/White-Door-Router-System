@@ -1,7 +1,7 @@
 <?php
     if (empty($_POST["pppmtuuconf"])) {
     include 'php-saves/internet.php';
-    echo WEBP;
+    echo gethostbyname(trim(`hostname`));
   } else {
 
 $dnsserver = array (

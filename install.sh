@@ -19,7 +19,15 @@ else
   echo "tmpfs       /var/log/ tmpfs   nodev,nosuid,noexec,nodiratime,size=5M   0 0" >> /etc/fstab
   cp debian/* /
   #Update repostory and Installing programs
-  apt-get update && apt-get install nginx-light dnsmasq php7.0-fpm --no-install-recommends -y
+  apt-get update && apt-get install nginx-light dnsmasq php7.0-fpm php7.0-sqlite3 net-tools --no-install-recommends -y
   #Services restart
   service ssh restart
+  #Clean apt Files
+  apt-get autoremove --purge -y
+  apt-get clean -y
+  apt-get autoclean -y
+  # Permission
+  chown -R www-data:www-data /drouter/web
+  chmod -R g+rwX /drouter/web
+
 fi
