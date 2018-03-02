@@ -1,4 +1,4 @@
-```bind
+```zone
 $TTL 1h
 
 @       IN      SOA     ns1.ahmetozer.org.  www.ahmetozer.org. (
