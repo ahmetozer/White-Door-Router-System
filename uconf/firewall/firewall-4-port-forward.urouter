@@ -1,5 +1,0 @@
-"tcp" "14190" "10.0.0.10:14140"
-"tcp" "15000" "10.0.0.10:5902"
-"tcp" "22896" "10.0.0.149:22"
-"tcp" "63981" "10.0.0.172:5900"
-###This is LAST line, Do not remove this. Example port forward "tcp" "443" "8.8.8.8";

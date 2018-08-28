@@ -1,0 +1,3 @@
+#type port version interface source
+any 80 4 ppp0
+# LAST Line | DONT REMOVE

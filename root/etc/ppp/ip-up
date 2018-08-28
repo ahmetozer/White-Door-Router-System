@@ -1,0 +1,12 @@
+#!/bin/sh
+PPP_IFACE="$1"
+PPP_TTY="$2"
+PPP_SPEED="$3"
+PPP_LOCAL="$4"
+PPP_REMOTE="$5"
+PPP_IPPARAM="$6"
+
+/white-door/sh/firewall-on
+
+/white-door/config/tunnel-broker.txt &
+

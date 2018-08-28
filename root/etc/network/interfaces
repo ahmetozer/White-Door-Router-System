@@ -1,0 +1,59 @@
+####
+# Local loopback
+####
+auto lo
+iface lo inet loopback
+	up ip addr add 1234::53/64 dev lo
+	up ip addr add 1234::953/64 dev lo
+	
+####
+# Ethernet
+####	
+auto eth0
+	#iface eth0 inet dhcp
+	iface eth0 inet static
+	address 10.0.0.5
+	netmask 255.255.255.0
+	up pon provider
+	pre-down poff -a
+
+####
+# Tunnel Broker Conf
+####
+
+#auto he-ipv6
+#iface he-ipv6 inet6 v4tunnel
+#        address 1234:1::2		#Tunnel startpoint ipv6
+#        netmask 64
+#        endpoint 216.66.84.46	#Tunnel server ip
+#        ttl 255
+#        gateway 1234:1::1		#Tunnel endpoint ipv6
+#		 up ip addr add  dev eth0 1256:1::2/64	#Home
+
+####
+# DSL
+####
+
+#auto dsl-provider
+#iface dsl-provider inet ppp
+#        pre-up /sbin/ip link set dev eth1 up # line maintained by pppoeconf
+#        provider provider
+
+####
+# Ethernet 2
+####	
+
+#allow-hotplug eth1
+#iface eth1 inet dhcp
+#	hwaddress ether # if you want to set MAC manually
+#	pre-up /sbin/ifconfig eth0 mtu 3838 # setting MTU for DHCP, static just: mtu 3838
+
+####
+# Wifi 2
+####
+	
+#allow-hotplug wlan0
+#iface wlan0 inet dhcp
+#	wpa-ssid SSID
+#	wpa-psk xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+#	## to generate proper encrypted key: wpa_passphrase yourSSID yourpassword

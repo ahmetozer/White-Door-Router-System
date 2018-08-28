@@ -1,9 +1,0 @@
-#!/bin/bash
-urouter_dir="/urouter"
-source $urouter_dir/urouter.uconf
-
-ip=`ifconfig $internetinterfaceconf | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'`
-ipv61=`ipv6calc -q --action conv6to4 --in ipv4 $ip --out ipv6 | cut -d : -f2`
-ipv62=`ipv6calc -q --action conv6to4 --in ipv4 $ip --out ipv6 | cut -d : -f3`
-
-echo "$NAT64Adressuconf$ipv61:$ipv62"

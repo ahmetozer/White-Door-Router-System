@@ -1,4 +1,0 @@
-#!/bin/bash
-urouter_dir="/urouter"
-source $urouter_dir/urouter.uconf
-killall -9 tcpdump ; tcpdump -i $internetinterfaceconf tcp -nn -l &>>$tcpdumploglocuconf`date +yil%y-ay-%m-gun%d`.txt ; sleep infinity

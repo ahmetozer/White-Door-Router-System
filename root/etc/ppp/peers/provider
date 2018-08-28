@@ -1,0 +1,54 @@
+### White-Door PPPOE Config ###
+###
+# Please write username and password
+###
+user test@turk.net
+password test
+###
+# Connection settings
+###
+noipdefault
+defaultroute
+hide-password
+#unit 1
+#ifname internet
+lcp-echo-interval 1
+lcp-echo-failure 5
+noauth
+noaccomp
+mtu 1500
+mru 1500
+persist
+#maxfail 5
+holdoff 2
+plugin rp-pppoe.so eth0
+
+#usepeerdns
+-ac
+-am
+-pc
++ipv6
+ipv6cp-accept-local
++ipv6 ipv6cp-use-ipaddr
+#-ip
+-mn
+silent
+#passive
+#asyncmap a
+#ipx
+mrru 1500
+multilink
+receive-all
+ipcp-accept-local
+ipcp-accept-remote
+nopredictor1
+noproxyarp
+novj
+novjccomp
+
+ktune
+mp
+mppe-stateful
+
+
+

@@ -1,0 +1,3 @@
+# ip adress or ip adress and interface
+66.220.2.74
+# LAST LINE | DONT REMOVE

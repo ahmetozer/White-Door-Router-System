@@ -1,0 +1,523 @@
+#!/bin/sh
+
+iptables --flush > /dev/null
+iptables --table nat --flush > /dev/null
+iptables --delete-chain > /dev/null
+iptables --table nat --delete-chain > /dev/null
+iptables -t mangle -F > /dev/null
+iptables -t mangle -X > /dev/null
+iptables -t raw -F > /dev/null
+iptables -t raw -X > /dev/null
+
+ip6tables --flush > /dev/null
+ip6tables --table nat --flush > /dev/null
+ip6tables --delete-chain > /dev/null
+ip6tables --table nat --delete-chain > /dev/null
+
+
+iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+ip6tables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+
+##################################
+# allow ports | FILE /white-door/config/port-allow.txt 
+##################################
+
+function allowport {
+type="`echo $p | cut -d" " -f 1`"
+port=`echo "$p " | cut -d" " -f 2`
+version=`echo "$p " | cut -d" " -f 3`
+interface=`echo "$p " | cut -d" " -f 4`
+source=`echo "$p " | cut -d" " -f 5`
+
+if [ $type = "any" ];
+then
+	###
+	# TCP and UDP
+	###
+
+	if [ -e ${interface} ] || [ $interface = "any" ];
+	then
+		if [ $version = "6" ];
+		then
+			if [ -e ${source} ];
+			then
+				for d in /sys/class/net/*/ ; do
+					ip6tables -A INPUT -p tcp -m tcp --dport $port -i `echo "$d" | cut -d"/" -f5` -j ACCEPT
+				done
+			else
+				for d in /sys/class/net/*/ ; do
+					ip6tables -A INPUT -p tcp -m tcp --dport $port -i `echo "$d" | cut -d"/" -f5` -s $source -j ACCEPT
+				done
+			fi
+		elif [ $version = "4" ];
+		then
+			if [ -e ${source} ];
+			then
+				for d in /sys/class/net/*/ ; do
+					iptables -A INPUT -p tcp -m tcp --dport $port -i `echo "$d" | cut -d"/" -f5` -j ACCEPT
+				done
+			else
+				for d in /sys/class/net/*/ ; do
+					iptables -A INPUT -p tcp -m tcp --dport $port -i `echo "$d" | cut -d"/" -f5` -s $source -j ACCEPT
+				done
+			fi
+		else
+				for d in /sys/class/net/*/ ; do
+					iptables -A INPUT -p tcp -m tcp --dport $port -i `echo "$d" | cut -d"/" -f5` -j ACCEPT
+				done
+				for d in /sys/class/net/*/ ; do
+					ip6tables -A INPUT -p tcp -m tcp --dport $port -i `echo "$d" | cut -d"/" -f5` -j ACCEPT
+				done
+		fi
+	else
+		if [  $version = "6" ];
+		then
+			if [ -e ${source} ];
+			then
+				ip6tables -A INPUT -p tcp -m tcp --dport $port -i $interface -j ACCEPT
+			else
+				ip6tables -A INPUT -p tcp -m tcp --dport $port -i $interface -s $source -j ACCEPT
+			fi
+			
+		elif [ $version = "4" ];
+		then
+			if [ -e ${source} ];
+			then
+				iptables  -A INPUT -p tcp -m tcp --dport $port -i $interface -j ACCEPT
+			else
+				iptables  -A INPUT -p tcp -m tcp --dport $port -i $interface -s $source -j ACCEPT
+			fi
+			
+		else
+				ip6tables -A INPUT -p tcp -m tcp --dport $port -i $interface -j ACCEPT
+				iptables  -A INPUT -p tcp -m tcp --dport $port -i $interface -j ACCEPT
+		fi
+	fi
+	
+	###
+	# UDP
+	###
+		if [ -e ${interface} ] || [ $interface = "any" ];
+	then
+		if [ $version = "6" ];
+		then
+			if [ -e ${source} ];
+			then
+				for d in /sys/class/net/*/ ; do
+					ip6tables -A INPUT -p udp -m udp --dport $port -i `echo "$d" | cut -d"/" -f5` -j ACCEPT
+				done
+			else
+				for d in /sys/class/net/*/ ; do
+					ip6tables -A INPUT -p udp -m udp --dport $port -i `echo "$d" | cut -d"/" -f5` -s $source -j ACCEPT
+				done
+			fi
+		elif [ $version = "4" ];
+		then
+			if [ -e ${source} ];
+			then
+				for d in /sys/class/net/*/ ; do
+					iptables -A INPUT -p udp -m udp --dport $port -i `echo "$d" | cut -d"/" -f5` -j ACCEPT
+				done
+			else
+				for d in /sys/class/net/*/ ; do
+					iptables -A INPUT -p udp -m udp --dport $port -i `echo "$d" | cut -d"/" -f5` -s $source -j ACCEPT
+				done
+			fi
+		else
+				for d in /sys/class/net/*/ ; do
+					iptables -A INPUT -p udp -m udp --dport $port -i `echo "$d" | cut -d"/" -f5` -j ACCEPT
+				done
+				for d in /sys/class/net/*/ ; do
+					ip6tables -A INPUT -p udp -m udp --dport $port -i `echo "$d" | cut -d"/" -f5` -j ACCEPT
+				done
+		fi
+	else
+		if [  $version = "6" ];
+		then
+			if [ -e ${source} ];
+			then
+				ip6tables -A INPUT -p udp -m udp --dport $port -i $interface -j ACCEPT
+			else
+				ip6tables -A INPUT -p udp -m udp --dport $port -i $interface -s $source -j ACCEPT
+			fi
+			
+		elif [ $version = "4" ];
+		then
+			if [ -e ${source} ];
+			then
+				iptables  -A INPUT -p udp -m udp --dport $port -i $interface -j ACCEPT
+			else
+				iptables  -A INPUT -p udp -m udp --dport $port -i $interface -s $source -j ACCEPT
+			fi
+			
+		else
+				ip6tables -A INPUT -p udp -m udp --dport $port -i $interface -j ACCEPT
+				iptables  -A INPUT -p udp -m udp --dport $port -i $interface -j ACCEPT
+		fi
+	fi
+	
+###
+# TCP or UDP 
+###
+else
+	if [ -e ${interface} ] || [ $interface = "any" ];
+	then
+		###
+		# All interfaces
+		###
+		if [ $version = "6" ];
+		then
+			if [ -e ${source} ];
+			then
+				for d in /sys/class/net/*/ ; do
+					ip6tables -A INPUT -p $type -m $type --dport $port -i `echo "$d" | cut -d"/" -f5` -j ACCEPT
+				done
+			else
+				for d in /sys/class/net/*/ ; do
+					ip6tables -A INPUT -p $type -m $type --dport $port -i `echo "$d" | cut -d"/" -f5` -s $source -j ACCEPT
+				done
+			fi
+		elif [ $version = "4" ];
+		then
+			if [ -e ${source} ];
+			then
+				for d in /sys/class/net/*/ ; do
+					iptables -A INPUT -p $type -m $type --dport $port -i `echo "$d" | cut -d"/" -f5` -j ACCEPT
+				done
+			else
+				for d in /sys/class/net/*/ ; do
+					iptables -A INPUT -p $type -m $type --dport $port -i `echo "$d" | cut -d"/" -f5` -s $source -j ACCEPT
+				done
+			fi
+		else
+				for d in /sys/class/net/*/ ; do
+					iptables -A INPUT -p $type -m $type --dport $port -i `echo "$d" | cut -d"/" -f5` -j ACCEPT
+				done
+				for d in /sys/class/net/*/ ; do
+					ip6tables -A INPUT -p $type -m $type --dport $port -i `echo "$d" | cut -d"/" -f5` -j ACCEPT
+				done
+		fi
+	else
+		###
+		# Specific interface
+		###
+		if [  $version = "6" ];
+		then
+			# IPv6
+			if [ -e ${source} ];
+			then
+				ip6tables -A INPUT -p $type -m $type --dport $port -i $interface -j ACCEPT
+			else
+				ip6tables -A INPUT -p $type -m $type --dport $port -i $interface -s $source -j ACCEPT
+			fi
+			
+		elif [ $version = "4" ];
+		then
+			# IPv4
+			if [ -e ${source} ];
+			then
+				iptables  -A INPUT -p $type -m $type --dport $port -i $interface -j ACCEPT
+			else
+				iptables  -A INPUT -p $type -m $type --dport $port -i $interface -s $source -j ACCEPT
+			fi
+		else
+			# IPv4 and IPv6
+				ip6tables -A INPUT -p $type -m $type --dport $port -i $interface -j ACCEPT
+				iptables  -A INPUT -p $type -m $type --dport $port -i $interface -j ACCEPT
+		fi
+	fi
+fi
+}
+
+
+
+# main loop
+while read p; do
+	if ! [ -z "$p" ] && ! [ "`echo $p | cut -c1`" = "#" ] ;
+	then
+		allowport $p
+	fi
+done < /white-door/config/port-allow.txt
+
+
+##################################
+# Settings Per İnterface | FILE /white-door/config/interfaces.txt
+##################################
+function fonk {
+interface="`echo $p | cut -d" " -f 1`"		# interface (0)
+nat="`echo $p | cut -d" " -f 2`"			# nat(1)
+icmp="`echo $p | cut -d" " -f 3`"			# icmp (2)
+dnsforward="`echo $p | cut -d" " -f 4`"		# dnsforward (3)
+drops="`echo $p | cut -d" " -f 5`"			# drops (4)
+	###
+	# Drop icmp
+	###
+	if [ "$icmp" = 1 ];
+	then
+		iptables -A INPUT -i $interface -p icmp -j DROP		# ICMP IPv4 and IPv6 both blocked
+		ip6tables -A INPUT -i $interface -p icmp -j DROP
+	elif [ "$icmp" = 2 ];
+	then
+		iptables -A INPUT -i $interface -p icmp -j DROP		# ICMP allow IPv6 ,block IPv4
+		ip6tables -A INPUT -i $interface -p icmp -j ACCEPT
+	elif [ "$icmp" = 3 ];
+	then
+		ip6tables -A INPUT -i $interface -p icmp -j DROP	# ICMP allow IPv4 ,block IPv6
+		iptables -A INPUT -i $interface -p icmp -j ACCEPT
+	else
+		iptables -A INPUT -i $interface -p icmp -j ACCEPT	# ICMP IPv4 and IPv6 both allowed
+		ip6tables -A INPUT -i $interface -p icmp -j ACCEPT
+	fi
+	
+	###
+	# DNS request forward
+	###
+	if [ "$dnsforward" = 1 ];
+	then
+		iptables -t nat -A PREROUTING -i $interface -p tcp -m tcp --dport 53 -j DNAT --to-destination 10.0.0.5:53
+		iptables -t nat -A PREROUTING -i $interface -p udp -m udp --dport 53 -j DNAT --to-destination 10.0.0.5:53
+	elif [ "$dnsforward" = 2 ];
+	then
+		ip6tables -t nat -A PREROUTING -i $interface -p tcp -m tcp --dport 53 -j DNAT --to-destination [1234::53]:53
+		ip6tables -t nat -A PREROUTING -i $interface -p udp -m udp --dport 53 -j DNAT --to-destination [1234::53]:53
+	elif [ "$dnsforward" = 3 ];
+	then
+		iptables -t nat -A PREROUTING -i $interface -p tcp -m tcp --dport 53 -j DNAT --to-destination 10.0.0.5:53
+		iptables -t nat -A PREROUTING -i $interface -p udp -m udp --dport 53 -j DNAT --to-destination 10.0.0.5:53
+		ip6tables -t nat -A PREROUTING -i $interface -p tcp -m tcp --dport 53 -j DNAT --to-destination [1234::53]:53
+		ip6tables -t nat -A PREROUTING -i $interface -p udp -m udp --dport 53 -j DNAT --to-destination [1234::53]:53
+	else
+		iptables -A INPUT -i $interface -p icmp -j ACCEPT	# ICMP IPv4 and IPv6 both allowed
+		ip6tables -A INPUT -i $interface -p icmp -j ACCEPT
+	fi
+	
+	###
+	# Drops
+	###
+	if [ "$drops" = 1 ];
+	then
+		iptables -A INPUT -i $interface -p tcp -j DROP		#Drop TCP packets
+		ip6tables -A INPUT -i $interface -p tcp -j DROP
+	elif [ "$drops" = 2 ];
+	then
+		iptables -A INPUT -i $interface -p udp -j DROP		#Drop UDP packets
+		ip6tables -A INPUT -i $interface -p udp -j DROP
+
+	elif [ "$drops" = 3 ];
+	then
+		iptables -A INPUT -i $interface -p tcp -j DROP		#Drop TCP and UDP packets
+		iptables -A INPUT -i $interface -p udp -j DROP
+
+		ip6tables -A INPUT -i $interface -p tcp -j DROP		
+		ip6tables -A INPUT -i $interface -p udp -j DROP
+
+	elif [ "$drops" = 4 ];
+	then
+		iptables -A INPUT -i $interface -j DROP				#Drop ANY packets
+		ip6tables -A INPUT -i $interface -j DROP
+	else
+		iptables -A INPUT -i $interface -j ACCEPT			#Allow ANY packets
+		ip6tables -A INPUT -i $interface -j ACCEPT
+	fi
+	
+	###
+	# NAT
+	##
+	if [ "$nat" = 1 ]; #ipv4 only
+	then
+		iptables --table nat --append POSTROUTING --out-interface $interface -j MASQUERADE
+		iptables --append FORWARD --in-interface $interface -j ACCEPT
+	fi
+}
+
+ 
+ 
+while read p; do
+	if ! [ -z "$p" ] && ! [ "`echo $p | cut -c1`" = "#" ] ;
+	then
+		fonk $p
+	fi  
+done < /white-door/config/interfaces.txt
+
+
+
+
+##################################
+# allow ips | FILE /white-door/config/ip-allow.txt 
+##################################
+
+function allowip {
+ip="`echo $p | cut -d" " -f 1`"
+interface=`echo "$p " | cut -d" " -f 2`
+if [ -e ${interface} ];
+then
+	if [ `echo $ip | grep ":"` ];
+	then
+		for d in /sys/class/net/*/ ; do
+			ip6tables -I INPUT -s $ip -i `echo "$d" | cut -d"/" -f5` -j ACCEPT 
+		done
+		
+	else
+		for d in /sys/class/net/*/ ; do
+			iptables -I INPUT -s $ip -i `echo "$d" | cut -d"/" -f5` -j ACCEPT 
+		done
+	fi
+else
+	if [ `echo $ip | grep ":"` ];
+	then
+		ip6tables -I INPUT -i $interface -s $ip -j ACCEPT
+	else
+		iptables -I INPUT -i $interface -s $ip -j ACCEPT
+	fi
+fi
+}
+
+
+# main loop
+while read p; do
+	if ! [ -z "$p" ] && ! [ "`echo $p | cut -c1`" = "#" ] ;
+	then
+		allowip $p
+	fi
+done < /white-door/config/ip-allow.txt
+
+ 
+##################################
+# block ips | FILE /white-door/config/ip-block.txt 
+##################################
+
+function blockip {
+ip="`echo $p | cut -d" " -f 1`"
+interface="`echo $p | cut -d" " -f 2`"
+
+if [ `echo $p | cut -d" " -f 2` ];
+then
+	if [ `echo $ip | grep ":"` ];
+	then
+		ip6tables -I INPUT -i $interface -s $ip -j DROP
+	else
+		iptables -I INPUT -i $interface -s $ip -j DROP
+	fi
+else
+	if [ `echo $ip | grep ":"` ];
+	then
+		ip6tables -I INPUT -s $ip -j DROP
+	else
+		iptables -I INPUT -s $ip -j DROP
+	fi
+fi
+}
+
+
+# main loop
+while read p; do
+	if ! [ -z "$p" ] && ! [ "`echo $p | cut -c1`" = "#" ] ;
+	then
+		blockip $p
+	fi
+done < /white-door/config/ip-block.txt
+
+
+##################################
+# Port Forwarding | FILE /white-door/config/port-forward.txt
+##################################
+
+function portip {
+type="`echo $p | cut -d" " -f 1`"
+interface="`echo $p | cut -d" " -f 2`"
+dport="`echo $p | cut -d" " -f 3`"
+ip="`echo $p | cut -d" " -f 4`"
+toport="`echo $p | cut -d" " -f 5`"
+ 
+if ! [ $toport ];
+then
+	toport="$dport"
+fi
+
+
+if [ "$type" = "any" ];
+then
+	###
+	# TCP and UDP
+	###
+	if [ "$interface" = "any" ];
+	then
+		if [ `echo $ip | grep ":"` ];
+		then
+			ip6tables -t nat -A PREROUTING -p tcp --dport $dport -j DNAT --to-destination [$ip]:$toport
+			ip6tables -t nat -A PREROUTING -p udp --dport $dport -j DNAT --to-destination [$ip]:$toport
+		else
+			echo iptables  -t nat -A PREROUTING -p tcp --dport $dport -j DNAT --to-destination $ip:$toport
+			iptables  -t nat -A PREROUTING -p udp --dport $dport -j DNAT --to-destination $ip:$toport
+		fi
+	else
+		if [ `echo $ip | grep ":"` ];
+		then
+			ip6tables -t nat -A PREROUTING -i $interface -p tcp --dport $dport -j DNAT --to-destination [$ip]:$toport
+			ip6tables -t nat -A PREROUTING -i $interface -p udp --dport $dport -j DNAT --to-destination [$ip]:$toport
+		else
+			iptables  -t nat -A PREROUTING -i $interface -p tcp --dport $dport -j DNAT --to-destination $ip:$toport
+			iptables  -t nat -A PREROUTING -i $interface -p udp --dport $dport -j DNAT --to-destination $ip:$toport
+		fi
+	fi
+else
+	###
+	# TCP or UDP
+	###
+	if [ "$interface" = "any" ];
+	then
+		if [ `echo $ip | grep ":"` ];
+		then
+			ip6tables -t nat -A PREROUTING -p $type --dport $dport -j DNAT --to-destination [$ip]:$toport
+		else
+			iptables  -t nat -A PREROUTING -p $type --dport $dport -j DNAT --to-destination $ip:$toport
+		fi
+	else
+		if [ `echo $ip | grep ":"` ];
+		then
+			ip6tables -t nat -A PREROUTING -i $interface -p $type --dport $dport -j DNAT --to-destination [$ip]:$toport
+		else
+			iptables  -t nat -A PREROUTING -i $interface -p $type --dport $dport -j DNAT --to-destination $ip:$toport
+		fi
+	fi
+fi
+
+}
+
+
+# main loop
+while read p; do
+	if ! [ -z "$p" ] && ! [ "`echo $p | cut -c1`" = "#" ] ;
+	then
+		portip $p
+	fi
+done < /white-door/config/port-forward.txt
+
+
+##################################
+# allow nameservers
+##################################
+
+function allowns {
+if [ "`echo $p | grep "nameserver"`" ];
+then
+ip="`echo $p | cut -d" " -f 2`"
+	if [ `echo $ip | grep ":"` ];
+	then
+		ip6tables -I INPUT -s $ip -j ACCEPT
+	else
+		iptables -I INPUT -s $ip -j ACCEPT
+	fi
+fi
+}
+
+
+# main loop
+while read p; do
+	if ! [ -z "$p" ] && ! [ "`echo $p | cut -c1`" = "#" ] ;
+	then
+		allowns $p
+	fi
+done < /etc/resolv.conf

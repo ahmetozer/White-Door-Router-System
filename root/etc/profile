@@ -1,0 +1,22 @@
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/white-door/sh
+
+if [ "$PS1" ]; then
+	if [ "`id -u`" -eq 0 ]; then
+		export PS1='# '
+	else
+		export PS1='$ '
+	fi
+fi
+
+export PAGER='/bin/more '
+export EDITOR='/bin/nano'
+
+# Source configuration files from /etc/profile.d
+for i in /etc/profile.d/*.sh ; do
+	if [ -r "$i" ]; then
+		. $i
+	fi
+	unset i
+done
+
+export PS1='\[\e[0;35m\]\u@\h \[\e[0;32m\]\w\[\e[0;31m\]>\[\e[0m\e[m\033]0;\u@\h> \t \007\]'

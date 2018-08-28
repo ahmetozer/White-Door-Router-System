@@ -1,0 +1,7 @@
+#!/bin/sh
+sysctl -p
+
+top -b -n 1
+
+/white-door/sh/firewall-on
+igmpproxy /etc/igmpproxy.conf

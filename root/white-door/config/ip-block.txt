@@ -1,0 +1,4 @@
+# ip adress or ip adress and interface
+192.168.99.1
+192.168.99.2 lo
+# LAST LINE | DONT REMOVE

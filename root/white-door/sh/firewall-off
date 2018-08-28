@@ -1,0 +1,15 @@
+#!/bin/sh
+
+iptables --flush > /dev/null
+iptables --table nat --flush > /dev/null
+iptables --delete-chain > /dev/null
+iptables --table nat --delete-chain > /dev/null
+iptables -t mangle -F > /dev/null
+iptables -t mangle -X > /dev/null
+iptables -t raw -F > /dev/null
+iptables -t raw -X > /dev/null
+
+ip6tables --flush > /dev/null
+ip6tables --table nat --flush > /dev/null
+ip6tables --delete-chain > /dev/null
+ip6tables --table nat --delete-chain > /dev/null

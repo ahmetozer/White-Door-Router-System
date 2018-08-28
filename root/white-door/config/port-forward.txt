@@ -1,0 +1,7 @@
+# Port Forward
+# type interface port ip to-port
+#tcp any 53 1.1.1.1 
+#udp eth0 22 1.1.1.1 443
+#any ppp0 8080 1.1.1.1 80
+
+# LAST LINE | DONT REMOVE

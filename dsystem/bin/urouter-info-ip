@@ -1,4 +1,0 @@
-#!/bin/bash
-urouter_dir="/urouter"
-source $urouter_dir/urouter.uconf
-ifconfig $internetinterfaceconf | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'
