@@ -120,13 +120,13 @@ alias wh-set= 'sudo cp -r ../root/* output/host/ && sudo cp -r ../root/* output/
 function wh-explorer() {
   if [ $(pwd | sed -n -e 's!^/mnt/!!p' | wc -c) == 0 ]
   then
-    cmd.exe /c "echo %LOCALAPPDATA%" > /tmp/LOCALAPPDATA
+    /mnt/c/Windows/System32/cmd.exe /c "echo %LOCALAPPDATA%" > /tmp/LOCALAPPDATA
     dest="$(strings -a /tmp/LOCALAPPDATA)\\Packages"
-    cmd.exe /c "dir $dest | findstr CanonicalGroupLimited" > /tmp/Canonical
+    /mnt/c/Windows/System32/cmd.exe /c "dir $dest | findstr CanonicalGroupLimited" > /tmp/Canonical
     repo=$(strings -a /tmp/Canonical | awk '{print $NF}')
     root=$(echo "$dest\\$repo\\LocalState\\rootfs")
-    explorer.exe $(echo ${root}$(pwd | sed 's!/!\\!g'))
+    /mnt/c/Windows/explorer.exe $(echo ${root}$(pwd | sed 's!/!\\!g'))
   else
-    explorer.exe $(pwd | sed -e 's!/mnt/!!g' -e 's!/!\\!g' -e 's/\(.\)\(.*\)/\1:\2/g')
+    /mnt/c/Windows/explorer.exe $(pwd | sed -e 's!/mnt/!!g' -e 's!/!\\!g' -e 's/\(.\)\(.*\)/\1:\2/g')
   fi
 }
