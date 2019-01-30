@@ -130,3 +130,16 @@ function wh-explorer() {
     /mnt/c/Windows/explorer.exe $(pwd | sed -e 's!/mnt/!!g' -e 's!/!\\!g' -e 's/\(.\)\(.*\)/\1:\2/g')
   fi
 }
+function wh-write() {
+  if [ $(pwd | sed -n -e 's!^/mnt/!!p' | wc -c) == 0 ]
+  then
+    /mnt/c/Windows/System32/cmd.exe /c "echo %LOCALAPPDATA%" > /tmp/LOCALAPPDATA
+    dest="$(strings -a /tmp/LOCALAPPDATA)\\Packages"
+    /mnt/c/Windows/System32/cmd.exe /c "dir $dest | findstr CanonicalGroupLimited" > /tmp/Canonical
+    repo=$(strings -a /tmp/Canonical | awk '{print $NF}')
+    root=$(echo "$dest\\$repo\\LocalState\\rootfs")
+    /mnt/c/Program\ Files\ \(x86\)/ImageWriter/Win32DiskImager.exe $(echo ${root}$(pwd | sed 's!/!\\!g'))/output/images/sdcard.img
+  else
+    /mnt/c/Program\ Files\ \(x86\)/ImageWriter/Win32DiskImager.exe $(pwd | sed -e 's!/mnt/!!g' -e 's!/!\\!g' -e 's/\(.\)\(.*\)/\1:\2/g')/output/images/sdcard.img
+  fi
+}
