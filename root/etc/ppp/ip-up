@@ -5,8 +5,20 @@ PPP_SPEED="$3"
 PPP_LOCAL="$4"
 PPP_REMOTE="$5"
 PPP_IPPARAM="$6"
+unit=`echo $1 | cut -d 'p' -f4`
+
+echo 0 > /sys/class/net/$1/queues/tx-0/byte_queue_limits/hold_time
 
 /white-door/sh/firewall-on
+sysctl -p
+
+ip route add default dev $1 metric 10$unit
+
+ip route add default dev $1 metric 10$unit table 101
+
+/white-door/config/tunnel-broker.txt &
+
+/white-door/sh/restart openvpn
 
 /white-door/config/tunnel-broker.txt &
 
