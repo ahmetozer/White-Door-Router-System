@@ -11,6 +11,10 @@ Useable for raspberry pi or like devices. (Currently tested on BananaPi)
     IP over HTTP
     Domain based auto routing
     WhiteDoor bash firewall managment
+    Port based routing
+    DNS based routing 
+    Different getaways for each computer
+    DNS forwarding
     TCP Westwood
     DuckDDNS
     
