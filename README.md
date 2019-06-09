@@ -17,7 +17,10 @@ Useable for raspberry pi or like devices. (Currently tested on BananaPi)
     DNS forwarding
     TCP Westwood
     DuckDDNS
-    
+    bridge
+    ip based interface & gateway (via macvlan)
+    kernel 5.1.6
+    bpf
 
 
 System ssh connection info
